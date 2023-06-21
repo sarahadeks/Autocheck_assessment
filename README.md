@@ -1,341 +1,91 @@
+utochek Data Engineering Challenge
+This repository contains solutions to the Autochek Data Engineering Challenge, which involves generating a summarized table from multiple datasets and loading the data into a PostgreSQL database.
 
+## Problem Statement One
+The problem statement revolves around creating a summarized table from the following datasets:
 
-# Case Study One
+Borrower_table: Contains information about borrowers (customer_id, state, city, zip code).
+Loan_table: Contains information about loans (borrower_id, loan_id, date_of_release, term, interest rate, loan amount, downpayment, payment frequency, maturity date).
+Payment_Schedule: Contains information about payment schedules (loan_id, schedule_id, expected payment date, expected payment amount).
+Loan_payment: Contains information about loan payments (loan_id, payment_id, amount paid, date paid).
+The goal is to generate a SQL query that retrieves desired columns from these tables, calculates PAR Days (the number of days the loan was not paid in full), and calculates the amount_at_risk for each missed payment.
 
-Just like every other day at Autochek, The overall goal starts by getting our dealers to list their cars, displaying these cars to the prospective customers on our marketplace and then providing affordable car loans to make life easy, you as our data engineer suddenly gets a data request around one of our most delicate dataset, Apparently, the business leaders would like to see a summarized table generated from data of the customer (borrower_table), the loans they currently have(loans table), the dates they have been scheduled to repay (payment_schedule), how frequent they are paying back (loan_payment), lastly a table that shows, history of times customers have missed their payments (missed_payment) you have a simple job, super hero, given these tables, generate a sql query for the desire columns using one or more of these tables. 
+Solution
+The solution to the problem consists of the following components:
 
+Extracting the data from Google Sheets: The data is provided in Google Sheets format. To extract the data, it needs to be downloaded and saved as CSV files.
 
-## The repository contains:
+Transforming the data: Once the data is extracted, it needs to be transformed to generate the desired summarized table. This transformation involves joining the relevant tables, calculating PAR Days, and aggregating the data.
 
+Loading the data into a PostgreSQL database: After the transformation, the data is loaded into a PostgreSQL database using the psycopg2 library.
 
-1.[Pre-requisites](#Pre_requisites)
+Querying the data: Once the data is loaded into the database, SQL queries can be executed to retrieve the desired summarized table.
 
-2.[STEPS-TO-RUN-CODE](#STEPS)
+The solution to the problem is implemented in a Jupyter Notebook (.ipynb file). The notebook includes step-by-step instructions, code snippets, and explanations for each part of the solution.
 
+Usage
+To use the solution, follow these steps:
 
-## Pre_requisites
+Clone the repository: git clone https://github.com/your-username/autochek-data-engineering-challenge.git
 
-- **Python 3.8+** - see [this guide](https://docs.python-guide.org/starting/install3/win/) for instructions if you're on a windows. 
-- **Requirement.txt** - see [this guide](https://note.nkmk.me/en/python-pip-install-requirements/) on running a requirement.txt file.
-- **Airflow** - (required for orchestration. [Airflow Installation Guide](https://airflow.apache.org/docs/apache-airflow/stable/installation/index.html)).
---Airflow was preferred to crontab for orchestration because it offers the ability to schedule, monitor, and most importantly, scale, increasingly complex workflows.
-- **Docker** - (needed for contenarization). [Docker Installation Guide](https://docs.docker.com/engine/install/)).
+Install the required dependencies: pip install -r requirements.txt
 
-### DATA_TRANSFORMATION
+Extract the data: Follow the instructions provided in the Jupyter Notebook to extract the data from Google Sheets and save it as CSV files.
 
-This project was aimed at generating a transformed data for the business.
+Transform and load the data: Execute the code snippets provided in the Jupyter Notebook to transform the data, create the PostgreSQL database, and load the data into the database.
 
-The data was studied and analyzed to get an overview of the project. Findings include:
+Query the data: Use the SQL queries provided in the Jupyter Notebook to retrieve the desired summarized table from the database.
 
-  - Some dates were out of range, hence a function was designed to parse the dates.
-  - The borrower_credit_score 
-  
-  - The tables form a star schema has shown in the ERD diagram
-  
-  ![alt text](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/ERD.PNG)
+Please make sure you have a PostgreSQL database installed and running before executing the code snippets for loading the data. Also, ensure that you have the necessary permissions to create databases and tables.
 
-  - There is a relationship between the payment_schedule and repayment_data via the schedule_id and payment_id_pk.
-    The payment_id_pk was parsed by excluding Substring "PAID". The resulting output was a foreign key from the payment_schedule table
 
-Three approaches were considered
+Conclusion
+This repository provides a solution to the Autochek Data Engineering Challenge, which involves extracting, transforming, and loading data from multiple datasets and generating a summarized table. By following the instructions in the Jupyter Notebook, users can replicate the solution and retrieve the desired results.
 
-### IMPLEMENTATION-WITH-PYTHON
+Please refer to the Jupyter Notebook for detailed instructions and code explanations.
 
-    This approach involves executing all logic of the code in python. The bulk of the transformation was carried out in pandas.
-    It comes with ease developing a production ready code at a fast pace.
-    
-    However, this is not suitabl for very large datasets due to memory constraint and its inability to support multiprocessing.
-    
-    A notebook implementation is included
-    
- 
-    
-   [Notebook implementation](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/python_solution_two.ipynb)
-   
-   The [Result](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/output2.csv) was generated as a CSV.
+## Problem Statement Two
 
+This repository contains a script written in Python that retrieves exchange rate data from a specified source and saves it in a specific format. The script is designed to run on a scheduler to pull the data multiple times a day.
 
-### IMPLEMENTATION-WITH-PYTHON-AND-SQL
+### Problem Statement
+The goal of this project is to fetch exchange rate data for 7 countries from a specific website and save the data in a standardized format. The data should include the timestamp of when the record was pulled, the currency being converted from (always USD), the rate of 1 USD to the target currency, and the rate of 1 unit of the target currency to USD. The script should also be scheduled to run twice a day, at 1 AM and 11 PM, to ensure the data is up to date.
 
+Solution
+The solution to the problem involves the following steps:
 
-   This involves ingesting the data from the source to an SQL Database. This provides a memory store and processing power is shared
-   by the driver node(system running the python script) and the database engine. It also provides a persistent store where other BI tools
-   can easily integrate.
-   
-   An ETL pipeline was built to ingest data from Google Sheet to Postgres on Dockers Container. All Exceptions are logged in 
-   [logs.txt](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/logs.txt).
-   This is important for debugging purpose
-   
-   #### STEPS
-   - Include necessary database parameters in the [CONFIG](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/config.ini) file.       POSTGRES_ADDRESS is the IP of the server dockers is running.  
-   - Startup the [Postgres](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/docker-compose.yml) docker container. 
-    
-          docker-compose up
-    
-   - Execute the [Main.py](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/main.py) script. This script 
-        - Create [DB Connection](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/dbconnection.py)
-        - [Transform](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/parse.py) the data parsed
-        - Creates table using [Relationship.sql](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/relationship.sql) and ingest the data
-        - Execute [Result.sql](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/result.sql) script to generate the desired output
-        - Save the result in [Output.csv](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/output.csv)
- 
+Create a free account on XE: To access the exchange rate data, you need to create a free account on XE (https://www.xe.com).
 
-### IMPLEMENTATION-WITH-PYSPARK
-  - This method is highly efficient when integrated with HDFS. This should be considered when the dataset is very large. It supports Multiprocessing,
-    hence, increasing the speed of transformation
+Go through the documentation: Familiarize yourself with the documentation provided by XE to understand how to retrieve the exchange rate data using their API (https://xecdapi.xe.com/docs/v1/).
 
-# Problem Two
+Write a script to pull the data: Use Python to write a script that fetches the exchange rate data from the specified website and saves it in the desired format. The script should include functionality to specify the target currencies and handle the authentication with the XE API.
 
+Set up a scheduler: Use a scheduler (e.g., cron on Linux or Task Scheduler on Windows) to schedule the execution of the script. Configure the scheduler to run the script twice a day, at 1 AM and 11 PM, to ensure the data is pulled at the desired intervals.
 
+Usage
+To use this script and set up the scheduler, follow these steps:
 
+Create a free account on XE: Visit https://www.xe.com and create a free account to obtain the necessary API credentials.
 
+Install the required dependencies: Make sure you have Python installed on your system. Install the required Python packages by running the following command:
 
-# Xe Currency Rate ETL
-An example on how to build a data ETL pipeline from Xe's API
+Copy code
+pip install requests
+Clone the repository: Clone this repository to your local machine using the following command:
 
-## Problem Statement 
+bash
+Copy code
+git clone https://github.com/your-username/exchange-rate-data-puller.git
+Configure the script: Open the script file (e.g., exchange_rate_puller.py) and update the necessary variables, such as your XE API credentials and the target currencies.
 
-we would like to get all our exchange rate from one source, code up a script
-that gets the rate of 7 countries and a scheduler to pull this rate 2 times a day, first at 1am
-and second at 11pm. Rates should be saved per day meaning, no duplicate records for a
-single date.
-- Rate website url → https://www.xe.com/xecurrencydata/
-- Rate website doc → https://xecdapi.xe.com/docs/v1/
+Test the script: Run the script manually to ensure it successfully pulls the exchange rate data and saves it in the desired format.
 
-## This repository contains:
+Set up the scheduler: Use your preferred scheduler (e.g., cron on Linux, Task Scheduler on Windows) to schedule the execution of the script. Configure the scheduler to run the script twice a day, at 1 AM and 11 PM, by specifying the appropriate command to execute the Python script.
 
-- User-defined functions (UDFs)
-- Airflow DAGs for scheduled python-etl scripts
+By following these steps, the exchange rate data will be pulled automatically according to the scheduled intervals and saved in the specified format.
 
-1.[Pre-requisites](#Pre-requisites)
+Please note that the script and scheduler setup mentioned in this README assume the usage of only Python without using a specific framework like Airflow. The script is designed to handle the data retrieval and saving aspects efficiently, without the need for additional dependencies.
 
-2.[Data Engineering Structure](#data-engineering-structure)
+Conclusion
+This repository provides a solution for pulling exchange rate data from a specified source and setting up a scheduler to automate the data retrieval process. By following the provided steps, anyone can set up the script, configure it with their XE API credentials, and schedule it to run at desired intervals.
 
-3.[Extract Data](#Extract_Data)
-
-4.[Load Data](#Load_Data)
-
-
-
-
-## Pre-requisites
-
-- **Python 3.8+** - see [this guide](https://docs.python-guide.org/starting/install3/win/) for instructions if you're on a windows. 
-- **Requirement.txt** - see [this guide](https://note.nkmk.me/en/python-pip-install-requirements/) on running a requirement.txt file.
-- **Airflow** - (required for orchestration. [Airflow Installation Guide](https://airflow.apache.org/docs/apache-airflow/stable/installation/index.html)).
---Airflow was preferred to crontab for orchestration because it offers the ability to schedule, monitor, and most importantly, scale, increasingly complex workflows.
-- **Docker** - (needed for contenarization). [Docker Installation Guide](https://docs.docker.com/engine/install/)).
-
-## data-engineering-structure
-![alt text](question_two/images/Screenshot%20(282).png "DE structure overview")
-
-The image above lays out the processing structure. We are going to go through an overview of why we try to adhere to this structure and will try to use the problem set above to explain how we are going to apply this structure to the problem set.
-
-The first thing to note is our tech stack. We use PostgresSQL and local CSV file for data storage, our transformation logic to move data from A to B is not restricted to but normally carried out in Python or Spark (SQL).The orchestration of these tasks to run our full pipeline is managed by Airflow.
-
-## Extract_Data
-
-### Step 1
-Create a config file with the following credentials below
-
-```
-[SOURCE]
-currencies =  ['EGP','GHS','KES','MAD','NGN','UGX','XOF']
-account_id = 'enter account_id'
-api_key  =  'enter api key'
-
-[DESTINATION]
-schema = currency_exchange
-POSTGRES_ADDRESS = localhost
-POSTGRES_PORT = 5432
-POSTGRES_USERNAME = postgres
-POSTGRES_PASSWORD = 'enter DB password'
-POSTGRES_DBNAME = autocheck
-```
-
-### Step 2
-Create a Database on PostgreSQL with the name `autochek`  then We are going to write a simple script that pulls exchange rate from this (amazing) API [currencydata](https://www.xe.com/xecurrencydata/) 
-
-We are just going to call the  `https://xecdapi.xe.com/v1/convert_to.json` and `https://xecdapi.xe.com/v1/convert_to.json`  API to grab a single currency exchange rate from target currency to USD and USD to target currency.
- 
-
-```
-{'terms': 'http://www.xe.com/legal/dfs.php',
- 'privacy': 'http://www.xe.com/privacy.php',
- 'to': 'USD',
- 'amount': 1.0,
- 'timestamp': '2022-08-14T00:00:00Z',
- 'from': [{'quotecurrency': 'NGN', 'mid': 419.2545920405}]}
-```
- 
-
-So our function `get_exchange` in the script `extract.py` will call the two api and transform both api responses to a dictionary.The dictionary is then converted to a  `pandas dataframe`.
-
-
-```
-def get_exchange(currencies,account_id,api_key):
-
-    """
-        returns the exchange rate for a list of currncies from  https://www.xe.com/xecurrencydata/
-
-        Parameters
-        ----------
-        currencies : List
-            list of currencies to load
-
-        account_id : str
-           account id key
-        
-        api_key : str
-            api key for a user's account
-            
-        Returns
-            -------
-            DataFrame 
-                a dataframe containing the following columns timestamp , currency_from, USD_to_currency, currency_to_USD ,currency_to of the target currecies
-    """
-
-    all_currency_data = pd.DataFrame()
-    #iterate over each currecy
-    for currency in currencies:
-        temp_data = {}
-        params = (
-            ('to', 'USD'),
-            ('from', currency),
-            ('amount', '1'),
-        )
-        # get the currency rate for  destination currency to 1 USD 
-        from_response = requests.get("https://xecdapi.xe.com/v1/convert_to.json",auth = (account_id,api_key), params=params)
-        # return the response in json format
-        response1 = from_response.json()
-        # get the currency rate for 1 USD to destination currency 
-        to_response = requests.get("https://xecdapi.xe.com/v1/convert_from.json",auth = (account_id,api_key), params=params)
-        # return the response in json format
-        response2 = to_response.json()
-
-        # mapping response to a dictionary 
-        temp_data['timestamp'] = response2['timestamp']
-        temp_data['currency_from'] = response2['to'][0]['quotecurrency']
-        temp_data['USD_to_currency'] = response2['to'][0]['mid']
-        temp_data['currency_to_USD'] = response1['from'][0]['mid']
-        temp_data['currency_to'] = response1['from'][0]['quotecurrency']
-        # converting the dictionary record to a dataframe
-        single_currency_data = pd.DataFrame([temp_data])
-        # appeding each currency record the universal currency dataframe 
-        all_currency_data = pd.concat([all_currency_data,single_currency_data],axis = 0)
-    #return the currency exchange
-    return all_currency_data
-```
-
-The sample output looks like this .
-
-![alt text](question_two/images/Screenshot%20(283).png "DataFrame output")
-
-
-## Load_Data
-we are going to load the returned dataframe to a local drive and a postgreSQL DB. our scipt will call the `load_to_local` function the `load.py` save a locally without duplicateds for each day
-
-```
-def load_to_local(data):
-    
-    """
-        save data from website locally
-
-        Parameters
-        ----------
-        data : dataframe
-            data to upsert into Destination DB table
-    """
-
-    # create a csv file to save historical data if it does not exist
-    try :
-        historical_data =  pd.read_csv('historical_data.csv')
-    except :
-        historical_data = pd.DataFrame(columns=['timestamp' , 'currency_from', 'USD_to_currency', 'currency_to_USD' ,'currency_to'])
-    
-    #append new records to historical data
-    historical_data = pd.concat([historical_data,data],axis= 0)
-    historical_data = historical_data.reset_index(drop =  True)
-
-    # drop duplicates if records are entered the same day
-    historical_data = historical_data.drop_duplicates(subset=['timestamp' ,'currency_to'],keep = 'first')
-
-    # overwrite existing transaction 
-    historical_data.to_csv('historical_data.csv',index = False)
-
-```
-Also we call the `upsert_database` function in the `load.py` module to save to a postgreSQL DB.
-
-```
-def upsert_database(data,target_engine,schema_name):
-
-    """
-        insert and update data to a destination database table
-
-        Parameters
-        ----------
-        data : dataframe
-            data to upsert into Destination DB table
-
-        schema_name : str
-            name of the schema that contains the table to be upserted in the destination DB
-        
-        target_engine : sql engine
-            database connection engine 
-
-        
-    """
-    # create the table if it does not exist with the timestamp and currency_to as composite keys
-    # to aviod duplicated data
-    target_engine.execute(f"""CREATE TABLE IF NOT EXISTS {schema_name}.rate( 
-                            timestamp TIMESTAMP,
-                            currency_from CHAR(3),
-                            USD_to_currency FLOAT8,
-                            currency_to_USD FLOAT8,
-                            currency_to CHAR(3) ,
-                            PRIMARY KEY(timestamp,currency_to))
-                            """)
-    #upsert the table records                    
-    target_engine.execute(
-        f"""
-        INSERT INTO {schema_name}.rate(timestamp,currency_from,USD_to_currency,currency_to_USD,currency_to)
-                VALUES {','.join([str(i) for i in list(data.to_records(index=False))])}
-                ON CONFLICT(timestamp,currency_to)
-                DO UPDATE SET currency_from= excluded.currency_from,
-                               USD_to_currency= excluded.USD_to_currency,
-                               currency_to_USD = excluded.currency_to_USD
-        """
-    )
-```
-
-here is a sample database output
-
-![alt text](question_two/images/db_output.png "db_output") 
-
-
-### Orchestration
-
-The scheduling interval for the script is 1am and 11 am : `schedule_interval': '0 11,1 * * *` .
-
-The Airflow Trigger output for scheduling the script to test that the DAG is working looks like this.
-
-![alt text](question_two/images/airflow_dag.jpg "airflow_dag") 
-
-
-
-
-
-
-
-#### STEPS
-   - Include necessary database parameters in the [CONFIG](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/config.ini) file.       POSTGRES_ADDRESS is the IP of the server dockers is running.  
-   - Startup the [Postgres](https://github.com/JamiuAfolabi/autochek/blob/main/question_one/docker-compose.yml) docker container. 
-    
-          docker-compose up
-    
-   - Execute the [etl.py]([https://github.com/JamiuAfolabi/autochek/blob/main/question_one/main.py](https://github.com/JamiuAfolabi/autochek/blob/main/question_two/dags/etl.py)) script. This script 
-        - Create a DB Connection
-        - Extract Exchange rate from API
-        - Create a csv file and ingest data into it
-        - Creates DB table and ingest the data
-        
