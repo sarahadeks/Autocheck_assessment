@@ -1,4 +1,4 @@
-Autochek Data Engineering Challenge
+# Autochek Data Engineering Challenge
 This repository contains solutions to the Autochek Data Engineering Challenge, which involves generating a summarized table from multiple datasets and loading the data into a PostgreSQL database.
 
 ## Problem Statement One
