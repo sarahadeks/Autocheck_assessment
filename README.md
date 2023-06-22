@@ -10,7 +10,7 @@ Payment_Schedule: Contains information about payment schedules (loan_id, schedul
 Loan_payment: Contains information about loan payments (loan_id, payment_id, amount paid, date paid).
 The goal is to generate a SQL query that retrieves desired columns from these tables, calculates PAR Days (the number of days the loan was not paid in full), and calculates the amount_at_risk for each missed payment.
 
-Solution
+### Solution
 The solution to the problem consists of the following components:
 
 Extracting the data from Google Sheets: The data is provided in Google Sheets format. To extract the data, it needs to be downloaded and saved as CSV files.
@@ -51,7 +51,7 @@ This repository contains a script written in Python that retrieves exchange rate
 ### Problem Statement
 The goal of this project is to fetch exchange rate data for 7 countries from a specific website and save the data in a standardized format. The data should include the timestamp of when the record was pulled, the currency being converted from (always USD), the rate of 1 USD to the target currency, and the rate of 1 unit of the target currency to USD. The script should also be scheduled to run twice a day, at 1 AM and 11 PM, to ensure the data is up to date.
 
-Solution
+### Solution
 The solution to the problem involves the following steps:
 
 Create a free account on XE: To access the exchange rate data, you need to create a free account on XE (https://www.xe.com).
